@@ -3,6 +3,7 @@ module Vault::Usage::Client
   class InvalidTimeError < Exception
   end
 
+  # Client for the `Vault::Usage` HTTP API.
   class Client
     # Instantiate a client.
     #
@@ -10,8 +11,8 @@ module Vault::Usage::Client
     #   basic auth credentials.
     # @param password [String] The password to pass to Vault::Usage in HTTP
     #   basic auth credentials.
-    # @param host [String] Optionally, the hostname to connect to.  Defaults
-    #   to `https://vault-usage.herokuapp.com`.
+    # @param host [String] Optionally, the hostname to connect to.  Default
+    #   is `https://vault-usage.herokuapp.com`.
     def initialize(username, password, host=nil)
       @username = username
       @password = password
@@ -30,7 +31,9 @@ module Vault::Usage::Client
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC.
     # @param detail [Hash] Optionally, additional details to store with the
-    #   event.
+    #   event.  Keys must be of type `String` and values may only be of type
+    #   `String`, `Fixnum`, `Bignum`, `Float`, `TrueClass`, `FalseClass` or
+    #   `NilClass`.
     # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
     #   unsuccessful HTTP status code.
@@ -79,21 +82,40 @@ module Vault::Usage::Client
     #   UTC, within which events must overlap to be included in usage data.
     # @param stop_time [Time] The end of the usage period, always in UTC,
     #   within which events must overlap to be included in usage data.
+    # @raise [InvalidTimeError] Raised if a non-UTC start or stop time is
+    #   provided.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
     # @return [Array] A list of usage events for the specified user, matching
     #   the following format:
     #
     #   ```
     #     [{id: '<event-uuid>',
-    #        product: '<name>',
-    #        consumer: '<heroku-id>',
-    #        start_time: '<Time>',
-    #        stop_time: '<Time>',
-    #        detail: {<key1>: <value1>,
-    #                 <key2>: <value2>,
-    #                 ...}},
+    #       product: '<name>',
+    #       consumer: '<heroku-id>',
+    #       start_time: '<Time>',
+    #       stop_time: '<Time>',
+    #       detail: {<key1>: <value1>,
+    #                <key2>: <value2>,
+    #                ...}},
     #       ...]}
     #   ```
     def usage_for_user(user_id, start_time, stop_time)
+      unless start_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Start time must be in UTC.')
+      end
+      unless stop_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Stop time must be in UTC.')
+      end
+      path = "/users/#{user_id}/usage/#{iso_format(start_time)}/" +
+             "#{iso_format(stop_time)}"
+      response = @connection.post(path: path, expects: [200])
+      events = Yajl::Parser.parse(response.body, {symbolize_keys: true})
+      events.each do |event|
+        event.each do |key, value|
+          event[key] = parse_date(value) if date?(value)
+        end
+      end
     end
 
     private
@@ -104,6 +126,27 @@ module Vault::Usage::Client
     # @return [String] An ISO 8601 date in `YYYY-MM-DDTHH:MM:SSZ` format.
     def iso_format(time)
       time.strftime('%Y-%m-%dT%H:%M:%SZ')
+    end
+
+    # Determine if the value is an ISO 8601 date in `YYYY-MM-DDTHH:MM:SSZ`
+    # format.
+    #
+    # @param value [String] The value to check for date-ness.
+    # @return [TrueClass,FalseClass] True if the value resembles a date,
+    #   otherwise false.
+    def date?(value)
+      value =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
+    end
+
+    # Parse an ISO 8601 date in `YYYY-MM-DDTHH:MM:SSZ` format into a Time
+    # instance.
+    #
+    # @param value [String] The value to parse.
+    # @raise [ArgumentError] Raised if the value doesn't represent a valid
+    #   date.
+    # @return [Time] The Time instance created from the date string in UTC.
+    def parse_date(value)
+      DateTime.parse(value).to_time.getutc
     end
   end
 end

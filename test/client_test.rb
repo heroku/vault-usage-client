@@ -8,7 +8,8 @@ class ClientTest < Vault::TestCase
     @client = Vault::Usage::Client::Client.new('username', 'secret')
     @event_id = 'd8bb95d1-6279-4488-961d-133514b772fa'
     @product_name = 'platform:dyno:logical'
-    @heroku_id = 'app123@heroku.com'
+    @app_id = 'app123@heroku.com'
+    @user_id = 'user456@heroku.com'
     @start_time = Time.utc(2013, 1)
     @stop_time = Time.utc(2013, 2)
   end
@@ -19,7 +20,7 @@ class ClientTest < Vault::TestCase
     # Without this, and the Excon.stubs.pop calls in the tests below, tests
     # will pass if request logic is completely removed from application
     # code. -jkakar
-    assert Excon.stubs.empty?
+    assert(Excon.stubs.empty?, 'Expected HTTP requests were not made.')
     super
   end
 
@@ -33,13 +34,13 @@ class ClientTest < Vault::TestCase
   def test_open_event
     Excon.stub({:method => :post}) do |request|
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
-      assert_equal("/products/#{@product_name}/usage/#{@heroku_id}" +
+      assert_equal("/products/#{@product_name}/usage/#{@app_id}" +
                    "/events/#{@event_id}/open/#{iso_format(@start_time)}",
                    request[:path])
       Excon.stubs.pop
       {status: 200}
     end
-    @client.open_event(@event_id, @product_name, @heroku_id, @start_time)
+    @client.open_event(@event_id, @product_name, @app_id, @start_time)
   end
 
   # Client.open_event optionally accepts a detail hash which is sent as a JSON
@@ -55,7 +56,7 @@ class ClientTest < Vault::TestCase
       Excon.stubs.pop
       {status: 200}
     end
-    @client.open_event(@event_id, @product_name, @heroku_id, @start_time,
+    @client.open_event(@event_id, @product_name, @app_id, @start_time,
                        detail)
   end
 
@@ -64,7 +65,7 @@ class ClientTest < Vault::TestCase
   def test_open_event_with_non_utc_start_time
     start_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
     error = assert_raises Vault::Usage::Client::InvalidTimeError do
-      @client.open_event(@event_id, @product_name, @heroku_id, start_time)
+      @client.open_event(@event_id, @product_name, @app_id, start_time)
     end
     assert_equal('Start time must be in UTC.', error.message)
   end
@@ -77,7 +78,7 @@ class ClientTest < Vault::TestCase
       {status: 400, body: 'Bad inputs provided.'}
     end
     assert_raises Excon::Errors::BadRequest do
-      @client.open_event(@event_id, @product_name, @heroku_id, @start_time)
+      @client.open_event(@event_id, @product_name, @app_id, @start_time)
     end
   end
 
@@ -86,21 +87,21 @@ class ClientTest < Vault::TestCase
   def test_close_event
     Excon.stub({:method => :post}) do |request|
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
-      assert_equal("/products/#{@product_name}/usage/#{@heroku_id}" +
+      assert_equal("/products/#{@product_name}/usage/#{@app_id}" +
                    "/events/#{@event_id}/open/#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
       {status: 200}
     end
-    @client.open_event(@event_id, @product_name, @heroku_id, @stop_time)
+    @client.open_event(@event_id, @product_name, @app_id, @stop_time)
   end
 
   # Client.close_event raises an InvalidTimeError if the stop time is not in
   # UTC.
   def test_close_event_with_non_utc_stop_time
-    stop_time = Time.new(2013, 1, 12, 15, 25, 0, "+09:00")
+    stop_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
     error = assert_raises Vault::Usage::Client::InvalidTimeError do
-      @client.close_event(@event_id, @product_name, @heroku_id, stop_time)
+      @client.close_event(@event_id, @product_name, @app_id, stop_time)
     end
     assert_equal('Stop time must be in UTC.', error.message)
   end
@@ -113,7 +114,75 @@ class ClientTest < Vault::TestCase
       {status: 400, body: 'Bad inputs provided.'}
     end
     assert_raises Excon::Errors::BadRequest do
-      @client.close_event(@event_id, @product_name, @heroku_id, @stop_time)
+      @client.close_event(@event_id, @product_name, @app_id, @stop_time)
+    end
+  end
+
+  # Client.usage_for_user makes a GET request to the Vault::Usage HTTP API to
+  # fetch usage data.
+  def test_usage_for_user
+    Excon.stub({:method => :post}) do |request|
+      assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
+      assert_equal("/users/#{@user_id}/usage/#{iso_format(@start_time)}/" +
+                   "#{iso_format(@stop_time)}",
+                   request[:path])
+      Excon.stubs.pop
+      {status: 200, body: Yajl::Encoder.encode([])}
+    end
+    assert_equal([], @client.usage_for_user(@user_id, @start_time, @stop_time))
+  end
+
+  # Client.usage_for_user converts event start and stop times to Time
+  # instances.
+  def test_usage_for_user_converts_times
+    Excon.stub({:method => :post}) do |request|
+      Excon.stubs.pop
+      events = [{id: @event_id,
+                 product: @product_name,
+                 consumer: @app_id,
+                 start_time: iso_format(@start_time),
+                 stop_time: iso_format(@stop_time),
+                 detail: {}}]
+      {status: 200, body: Yajl::Encoder.encode(events)}
+    end
+    assert_equal([{id: @event_id,
+                   product: @product_name,
+                   consumer: @app_id,
+                   start_time: @start_time,
+                   stop_time: @stop_time,
+                   detail: {}}],
+                 @client.usage_for_user(@user_id, @start_time, @stop_time))
+  end
+
+  # Client.usage_for_user raises an InvalidTimeError if the start time is not
+  # in UTC.
+  def test_usage_for_user_with_non_utc_start_time
+    start_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
+    error = assert_raises Vault::Usage::Client::InvalidTimeError do
+      @client.usage_for_user(@user_id, start_time, @stop_time)
+    end
+    assert_equal('Start time must be in UTC.', error.message)
+  end
+
+  # Client.usage_for_user raises an InvalidTimeError if the stop time is not
+  # in UTC.
+  def test_usage_for_user_with_non_utc_stop_time
+    stop_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
+    error = assert_raises Vault::Usage::Client::InvalidTimeError do
+      @client.usage_for_user(@user_id, @start_time, stop_time)
+    end
+    assert_equal('Stop time must be in UTC.', error.message)
+  end
+
+  # Client.usage_for_user raises the appropriate Excon::Errors::HTTPStatusError
+  # if an unsuccessful HTTP status code is returned by the server.
+  def test_usage_for_user_with_unsuccessful_response
+    Excon.stub({:method => :post}) do |request|
+      Excon.stubs.pop
+      {status: 400, body: 'Bad inputs provided.'}
+    end
+    assert_raises Excon::Errors::BadRequest do
+      @client.usage_for_user(@user_id, @start_time, @stop_time)
     end
   end
 end
