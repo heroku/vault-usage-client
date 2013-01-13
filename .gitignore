@@ -1,0 +1,5 @@
+.bundle
+doc
+test/.test.profile*
+vendor
+.yardoc
