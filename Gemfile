@@ -1,6 +1,10 @@
 source :rubygems
 
 gemspec
+# FIXME Why is the following necessary?  The dependencies are declared in
+# vault-usage-client.gemspec...?
+gem 'excon'
+gem 'yajl-ruby', :require => 'yajl'
 
 group :development do
   gem 'rake'
