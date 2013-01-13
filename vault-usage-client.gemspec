@@ -15,6 +15,6 @@ Gem::Specification.new do |gem|
   gem.test_files    = gem.files.grep('^(test|spec|features)/')
   gem.require_paths = ["lib"]
 
-  gem.add_dependency 'rest-client'
+  gem.add_dependency 'excon'
   gem.add_dependency 'yajl-ruby'
 end
