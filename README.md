@@ -69,6 +69,11 @@ detail = {type: 'web',
 client.open_event(event_id, product_name, heroku_id, start_time, detail)
 ```
 
+Keys in the detail object must be of type `Symbol` and values may only
+be of type `String`, `Fixnum`, `Bignum`, `Float`, `TrueClass`,
+`FalseClass` or `NilClass`.  In other words, it's not possible to use
+nested structures in the detail object.
+
 ### Closing an event
 
 Closing an event works the same way as opening an event:
