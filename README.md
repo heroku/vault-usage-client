@@ -90,7 +90,7 @@ client.open_event(event_id, product_name, heroku_id, stop_time)
 
 ### Retrieving usage information
 
-Usage information for a particular user can also be retrieved by the
+Usage information for a particular user can be retrieved by the
 client.  The start and stop time must both be specified in UTC:
 
 ```ruby
