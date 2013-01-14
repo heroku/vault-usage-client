@@ -33,7 +33,7 @@ class ClientTest < Vault::TestCase
   # passing the supplied credentials using HTTP basic auth, to report that
   # usage of a product began at a particular time.
   def test_open_event
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :post) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -52,7 +52,7 @@ class ClientTest < Vault::TestCase
     detail = {type: 'web',
               description: 'bundle exec bin/web',
               kernel: 'us-east-1-a'}
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :post) do |request|
       assert_equal('application/json', request[:headers]['Content-Type'])
       assert_equal(detail,
                    Yajl::Parser.parse(request[:body], {symbolize_keys: true}))
@@ -76,7 +76,7 @@ class ClientTest < Vault::TestCase
   # Client.open_event raises the appropriate Excon::Errors::HTTPStatusError if
   # an unsuccessful HTTP status code is returned by the server.
   def test_open_event_with_unsuccessful_response
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :post) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
@@ -89,7 +89,7 @@ class ClientTest < Vault::TestCase
   # passing the supplied credentials using HTTP basic auth, to report that
   # usage of a product ended at a particular time.
   def test_close_event
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :post) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -115,7 +115,7 @@ class ClientTest < Vault::TestCase
   # Client.close_event raises the appropriate Excon::Errors::HTTPStatusError
   # if an unsuccessful HTTP status code is returned by the server.
   def test_close_event_with_unsuccessful_response
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :post) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
@@ -129,7 +129,7 @@ class ClientTest < Vault::TestCase
   # usage events for a particular user that occurred during the specified
   # period of time.
   def test_usage_for_user
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -145,7 +145,7 @@ class ClientTest < Vault::TestCase
   # Client.usage_for_user optionally accepts a list of products to exclude.
   # They're passed to the server using query string arguments.
   def test_usage_for_user_with_exclude
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       assert_equal({exclude: 'platform:dyno:physical'}, request[:query])
       Excon.stubs.pop
       {status: 200, body: Yajl::Encoder.encode([])}
@@ -158,7 +158,7 @@ class ClientTest < Vault::TestCase
   # provided in the exclusion list, and passes them to the server using a
   # single query argument.
   def test_usage_for_user_with_many_excludes
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       assert_equal({exclude: 'platform:dyno:physical,addons:memcache:100mb'},
                    request[:query])
       Excon.stubs.pop
@@ -172,7 +172,7 @@ class ClientTest < Vault::TestCase
   # Client.usage_for_user with an empty product exclusion list is the same as
   # not passing one at all.
   def test_usage_for_user_with_empty_exclude
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       assert_equal(nil, request[:query])
       Excon.stubs.pop
       {status: 200, body: Yajl::Encoder.encode([])}
@@ -184,7 +184,7 @@ class ClientTest < Vault::TestCase
   # Client.usage_for_user converts event start and stop times to Time
   # instances.
   def test_usage_for_user_converts_times
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       Excon.stubs.pop
       events = [{id: @event_id,
                  product: @product_name,
@@ -226,7 +226,7 @@ class ClientTest < Vault::TestCase
   # Client.usage_for_user raises the appropriate Excon::Errors::HTTPStatusError
   # if an unsuccessful HTTP status code is returned by the server.
   def test_usage_for_user_with_unsuccessful_response
-    Excon.stub({:method => :post}) do |request|
+    Excon.stub(method: :get) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end

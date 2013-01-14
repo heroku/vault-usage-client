@@ -124,7 +124,7 @@ module Vault::Usage::Client
       unless exclude.nil? || exclude.empty?
         query = {exclude: exclude.join(',')}
       end
-      response = @connection.post(path: path, expects: [200], query: query)
+      response = @connection.get(path: path, expects: [200], query: query)
       events = Yajl::Parser.parse(response.body, {symbolize_keys: true})
       events.each do |event|
         event.each do |key, value|
