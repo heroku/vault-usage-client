@@ -6,7 +6,7 @@ module Vault::Usage::Client
   # @param password [String] The password to pass to Vault::Usage in HTTP
   #   basic auth credentials.
   # @param host [String] Optionally, the hostname to connect to.  Default is
-  #   `https://vault-usage.herokuapp.com`.
+  #   `vault-usage.herokuapp.com`.
   # @return [Client] A new client instance.
   def self.create(username, password, host=nil)
     host ||= 'vault-usage.herokuapp.com'
@@ -40,7 +40,7 @@ module Vault::Usage::Client
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC.
     # @param detail [Hash] Optionally, additional details to store with the
-    #   event.  Keys must be of type `String` and values may only be of type
+    #   event.  Keys must be of type `Symbol` and values may only be of type
     #   `String`, `Fixnum`, `Bignum`, `Float`, `TrueClass`, `FalseClass` or
     #   `NilClass`.
     # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
@@ -102,14 +102,14 @@ module Vault::Usage::Client
     #     [{id: '<event-uuid>',
     #       product: '<name>',
     #       consumer: '<heroku-id>',
-    #       start_time: '<Time>',
-    #       stop_time: '<Time>',
+    #       start_time: <Time>,
+    #       stop_time: <Time>,
     #       detail: {<key1>: <value1>,
     #                <key2>: <value2>,
     #                ...}},
     #       ...]}
     #   ```
-    def usage_for_user(user_id, start_time, stop_time)
+    def usage_for_user(user_id, start_time, stop_time, exclude=nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end

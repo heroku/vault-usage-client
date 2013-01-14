@@ -125,9 +125,9 @@ class ClientTest < Vault::TestCase
   end
 
   # Client.usage_for_user makes a GET request to the Vault::Usage HTTP API,
-  # passing the supplied credentials using HTTP basic auth, to fetch the usage
-  # events for a particular user that occurred during the specified period of
-  # time.
+  # passing the supplied credentials using HTTP basic auth, to retrieve the
+  # usage events for a particular user that occurred during the specified
+  # period of time.
   def test_usage_for_user
     Excon.stub({:method => :post}) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
