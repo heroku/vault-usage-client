@@ -122,7 +122,7 @@ user_id = 'user1234@heroku.com'
 start_time = Time.utc(2013, 1)
 stop_time = Time.utc(2013, 2)
 events = client.usage_for_user(user_id, start_time, stop_time,
-                               exclude=['platform:dyno:physical'])
+                               ['platform:dyno:physical'])
 ```
 
 You can pass one or more product names to exclude.
