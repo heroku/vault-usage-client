@@ -85,7 +85,7 @@ event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
 heroku_id = 'app1234@heroku.com'
 stop_time = Time.utc
-client.open_event(event_id, product_name, heroku_id, stop_time)
+client.close_event(event_id, product_name, heroku_id, stop_time)
 ```
 
 ### Retrieving usage information
