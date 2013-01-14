@@ -5,7 +5,7 @@ HTTP API.
 
 ## Setting up a development environment
 
-Install dependencies and setup test databases:
+Install dependencies and run the test suite:
 
     bundle install --binstubs vendor/bin
     rbenv rehash
@@ -30,6 +30,15 @@ You must supply these when you create a new client:
 
 ```ruby
 client = Vault::Usage::Client.create('username', 'password')
+```
+
+Requests are made to `https://vault-usage.herokuapp.com` by default.
+You can optionally specify a different host, which will be accessed
+securely using HTTPS:
+
+```ruby
+client = Vault::Usage::Client.create('username', 'password',
+                                     'vault-usage.example.com')
 ```
 
 ### Opening an event
