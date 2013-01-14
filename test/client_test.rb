@@ -85,10 +85,13 @@ class ClientTest < Vault::TestCase
     end
   end
 
-  # Client.close_event makes a POST request to the Vault::Usage HTTP API to
-  # report that usage of a product ended at a particular time.
+  # Client.close_event makes a POST request to the Vault::Usage HTTP API,
+  # passing the supplied credentials using HTTP basic auth, to report that
+  # usage of a product ended at a particular time.
   def test_close_event
     Excon.stub({:method => :post}) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
       assert_equal("/products/#{@product_name}/usage/#{@app_id}" +
                    "/events/#{@event_id}/open/#{iso_format(@stop_time)}",
@@ -121,10 +124,14 @@ class ClientTest < Vault::TestCase
     end
   end
 
-  # Client.usage_for_user makes a GET request to the Vault::Usage HTTP API to
-  # fetch usage data.
+  # Client.usage_for_user makes a GET request to the Vault::Usage HTTP API,
+  # passing the supplied credentials using HTTP basic auth, to fetch the usage
+  # events for a particular user that occurred during the specified period of
+  # time.
   def test_usage_for_user
     Excon.stub({:method => :post}) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
       assert_equal("/users/#{@user_id}/usage/#{iso_format(@start_time)}/" +
                    "#{iso_format(@stop_time)}",
