@@ -29,6 +29,8 @@ The `Vault::Usage` API may only be accessed with valid credentials.
 You must supply these when you create a new client:
 
 ```ruby
+require 'vault-usage-client'
+
 client = Vault::Usage::Client.create('username', 'password')
 ```
 
