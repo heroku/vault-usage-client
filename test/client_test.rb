@@ -142,6 +142,45 @@ class ClientTest < Vault::TestCase
     assert_equal([], @client.usage_for_user(@user_id, @start_time, @stop_time))
   end
 
+  # Client.usage_for_user optionally accepts a list of products to exclude.
+  # They're passed to the server using query string arguments.
+  def test_usage_for_user_with_exclude
+    Excon.stub({:method => :post}) do |request|
+      assert_equal({exclude: 'platform:dyno:physical'}, request[:query])
+      Excon.stubs.pop
+      {status: 200, body: Yajl::Encoder.encode([])}
+    end
+    assert_equal([], @client.usage_for_user(@user_id, @start_time, @stop_time,
+                                            ['platform:dyno:physical']))
+  end
+
+  # Client.usage_for_user comma-separates product names, when many are
+  # provided in the exclusion list, and passes them to the server using a
+  # single query argument.
+  def test_usage_for_user_with_many_excludes
+    Excon.stub({:method => :post}) do |request|
+      assert_equal({exclude: 'platform:dyno:physical,addons:memcache:100mb'},
+                   request[:query])
+      Excon.stubs.pop
+      {status: 200, body: Yajl::Encoder.encode([])}
+    end
+    assert_equal([], @client.usage_for_user(@user_id, @start_time, @stop_time,
+                                            ['platform:dyno:physical',
+                                             'addons:memcache:100mb']))
+  end
+
+  # Client.usage_for_user with an empty product exclusion list is the same as
+  # not passing one at all.
+  def test_usage_for_user_with_empty_exclude
+    Excon.stub({:method => :post}) do |request|
+      assert_equal(nil, request[:query])
+      Excon.stubs.pop
+      {status: 200, body: Yajl::Encoder.encode([])}
+    end
+    assert_equal([], @client.usage_for_user(@user_id, @start_time, @stop_time,
+                                            []))
+  end
+
   # Client.usage_for_user converts event start and stop times to Time
   # instances.
   def test_usage_for_user_converts_times

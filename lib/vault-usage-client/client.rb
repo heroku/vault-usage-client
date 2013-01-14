@@ -91,6 +91,9 @@ module Vault::Usage::Client
     #   UTC, within which events must overlap to be included in usage data.
     # @param stop_time [Time] The end of the usage period, always in UTC,
     #   within which events must overlap to be included in usage data.
+    # @param exclude [Array] Optionally, a list of product names, such as
+    #   `['platform:dyno:physical', 'addon:memcache:100mb']`, to be excluded
+    #   from usage data.
     # @raise [InvalidTimeError] Raised if a non-UTC start or stop time is
     #   provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
@@ -118,7 +121,10 @@ module Vault::Usage::Client
       end
       path = "/users/#{user_id}/usage/#{iso_format(start_time)}/" +
              "#{iso_format(stop_time)}"
-      response = @connection.post(path: path, expects: [200])
+      unless exclude.nil? || exclude.empty?
+        query = {exclude: exclude.join(',')}
+      end
+      response = @connection.post(path: path, expects: [200], query: query)
       events = Yajl::Parser.parse(response.body, {symbolize_keys: true})
       events.each do |event|
         event.each do |key, value|
