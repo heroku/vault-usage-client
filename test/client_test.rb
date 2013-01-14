@@ -5,7 +5,7 @@ class ClientTest < Vault::TestCase
     super
     Excon.stubs.clear
     Excon.defaults[:mock] = true
-    @client = Vault::Usage::Client::Client.new('username', 'secret')
+    @client = Vault::Usage::Client.create('username', 'secret')
     @event_id = 'd8bb95d1-6279-4488-961d-133514b772fa'
     @product_name = 'platform:dyno:logical'
     @app_id = 'app123@heroku.com'
@@ -29,10 +29,13 @@ class ClientTest < Vault::TestCase
     time.strftime('%Y-%m-%dT%H:%M:%SZ')
   end
 
-  # Client.open_event makes a POST request to the Vault::Usage HTTP API to
-  # report that usage of a product began at a particular time.
+  # Client.open_event makes a POST request to the Vault::Usage HTTP API,
+  # passing the supplied credentials using HTTP basic auth, to report that
+  # usage of a product began at a particular time.
   def test_open_event
     Excon.stub({:method => :post}) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
       assert_equal("/products/#{@product_name}/usage/#{@app_id}" +
                    "/events/#{@event_id}/open/#{iso_format(@start_time)}",
