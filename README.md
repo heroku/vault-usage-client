@@ -53,7 +53,7 @@ service reporting it and the start time must be in UTC:
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
 heroku_id = 'app1234@heroku.com'
-start_time = Time.utc
+start_time = Time.now.getutc
 client.open_event(event_id, product_name, heroku_id, start_time)
 ```
 
@@ -64,7 +64,7 @@ of a detail object:
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
 heroku_id = 'app1234@heroku.com'
-start_time = Time.utc
+start_time = Time.now.getutc
 detail = {type: 'web',
           description: 'bundle exec bin/web',
           kernel: 'us-east-1-a'}
@@ -84,7 +84,7 @@ Closing an event works the same way as opening an event:
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
 heroku_id = 'app1234@heroku.com'
-stop_time = Time.utc
+stop_time = Time.now.getutc
 client.close_event(event_id, product_name, heroku_id, stop_time)
 ```
 

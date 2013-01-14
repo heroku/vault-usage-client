@@ -94,12 +94,12 @@ class ClientTest < Vault::TestCase
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
       assert_equal("/products/#{@product_name}/usage/#{@app_id}" +
-                   "/events/#{@event_id}/open/#{iso_format(@stop_time)}",
+                   "/events/#{@event_id}/close/#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
       {status: 200}
     end
-    @client.open_event(@event_id, @product_name, @app_id, @stop_time)
+    @client.close_event(@event_id, @product_name, @app_id, @stop_time)
   end
 
   # Client.close_event raises an InvalidTimeError if the stop time is not in

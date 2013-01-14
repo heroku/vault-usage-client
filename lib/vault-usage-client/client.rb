@@ -78,7 +78,7 @@ module Vault::Usage::Client
         raise InvalidTimeError.new('Stop time must be in UTC.')
       end
       path = "/products/#{product_name}/usage/#{heroku_id}" +
-             "/events/#{event_id}/open/#{iso_format(stop_time)}"
+             "/events/#{event_id}/close/#{iso_format(stop_time)}"
       @connection.post(path: path, expects: [200])
     end
 
