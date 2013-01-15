@@ -10,7 +10,7 @@ module Vault::Usage::Client
     # @param url [String] The URL to connect to.  Include the username and
     #   password to use when connecting.
     def initialize(url)
-      @connection = Excon.new(url)
+      @url = url
     end
 
     # Report that usage of a product, by a user or app, started at a
@@ -41,8 +41,9 @@ module Vault::Usage::Client
         headers = {'Content-Type' => 'application/json'}
         body = JSON.generate(detail)
       end
-      @connection.post(path: path, headers: headers, body: body,
-                       expects: [200])
+      connection = Excon.new(@url)
+      connection.post(path: path, headers: headers, body: body,
+                      expects: [200])
     end
 
     # Report that usage of a product, by a user or app, stopped at a
@@ -64,7 +65,8 @@ module Vault::Usage::Client
       end
       path = "/products/#{product_name}/usage/#{heroku_id}" +
              "/events/#{event_id}/close/#{iso_format(stop_time)}"
-      @connection.post(path: path, expects: [200])
+      connection = Excon.new(@url)
+      connection.post(path: path, expects: [200])
     end
 
     # Get the usage events for the apps owned by the specified user during the
@@ -109,7 +111,8 @@ module Vault::Usage::Client
       unless exclude.nil? || exclude.empty?
         query = {exclude: exclude.join(',')}
       end
-      response = @connection.get(path: path, expects: [200], query: query)
+      connection = Excon.new(@url)
+      response = connection.get(path: path, expects: [200], query: query)
       events = JSON.parse(response.body, {symbolize_keys: true})
       events.each do |event|
         event.each do |key, value|
