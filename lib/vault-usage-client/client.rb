@@ -39,7 +39,7 @@ module Vault::Usage::Client
              "/events/#{event_id}/open/#{iso_format(start_time)}"
       unless detail.nil?
         headers = {'Content-Type' => 'application/json'}
-        body = Yajl::Encoder.encode(detail)
+        body = JSON.generate(detail)
       end
       @connection.post(path: path, headers: headers, body: body,
                        expects: [200])
@@ -110,7 +110,7 @@ module Vault::Usage::Client
         query = {exclude: exclude.join(',')}
       end
       response = @connection.get(path: path, expects: [200], query: query)
-      events = Yajl::Parser.parse(response.body, {symbolize_keys: true})
+      events = JSON.parse(response.body, {symbolize_keys: true})
       events.each do |event|
         event.each do |key, value|
           event[key] = parse_date(value) if date?(value)
