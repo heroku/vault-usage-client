@@ -31,16 +31,8 @@ You must supply these when you create a new client:
 ```ruby
 require 'vault-usage-client'
 
-client = Vault::Usage::Client.create('username', 'password')
-```
-
-Requests are made to `https://vault-usage.herokuapp.com` by default.
-You can optionally specify a different host, which will be accessed
-securely using HTTPS:
-
-```ruby
-client = Vault::Usage::Client.create('username', 'password',
-                                     'vault-usage.example.com')
+client = Vault::Usage::Client::Client.new(
+  'https://username:secret@vault-usage.herokuapp.com')
 ```
 
 ### Opening an event

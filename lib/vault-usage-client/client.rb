@@ -1,19 +1,4 @@
 module Vault::Usage::Client
-  # Create a new client.
-  #
-  # @param username [String] The username to pass to Vault::Usage in HTTP
-  #   basic auth credentials.
-  # @param password [String] The password to pass to Vault::Usage in HTTP
-  #   basic auth credentials.
-  # @param host [String] Optionally, the hostname to connect to.  Default is
-  #   `vault-usage.herokuapp.com`.
-  # @return [Client] A new client instance.
-  def self.create(username, password, host=nil)
-    host ||= 'vault-usage.herokuapp.com'
-    connection = Excon.new("https://#{username}:#{password}@#{host}")
-    Client.new(connection)
-  end
-
   # Raised if a non-UTC time is used with the client.
   class InvalidTimeError < Exception
   end
@@ -22,10 +7,10 @@ module Vault::Usage::Client
   class Client
     # Instantiate a client.
     #
-    # @param connection [Excon] The connection to use when making requests to
-    #   the Vault::Usage HTTP API.
-    def initialize(connection)
-      @connection = connection
+    # @param url [String] The URL to connect to.  Include the username and
+    #   password to use when connecting.
+    def initialize(url)
+      @connection = Excon.new(url)
     end
 
     # Report that usage of a product, by a user or app, started at a

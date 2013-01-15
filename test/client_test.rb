@@ -5,7 +5,8 @@ class ClientTest < Vault::TestCase
     super
     Excon.stubs.clear
     Excon.defaults[:mock] = true
-    @client = Vault::Usage::Client.create('username', 'secret')
+    @client = Vault::Usage::Client::Client.new(
+      'https://username:secret@vault-usage.herokuapp.com')
     @event_id = 'd8bb95d1-6279-4488-961d-133514b772fa'
     @product_name = 'platform:dyno:logical'
     @app_id = 'app123@heroku.com'
