@@ -35,32 +35,37 @@ client = Vault::Usage::Client::Client.new(
   'https://username:secret@vault-usage.herokuapp.com')
 ```
 
-### Opening an event
+### Usage events
 
-A usage event represents usage of a product, for a period of time, by
-an app or user.  Each event must have a unique ID provided by the
-service reporting it and the start time must be in UTC:
+Usage events represent usage of a product, for a period of time, by an
+app or user.
+
+#### Opening a usage event
+
+Each usage event must have a unique UUID provided by the service
+reporting it and the start time must be in UTC:
 
 ```ruby
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
-heroku_id = 'app1234@heroku.com'
+consumer_hid = 'app1234@heroku.com'
 start_time = Time.now.getutc
-client.open_event(event_id, product_name, heroku_id, start_time)
+client.open_usage_event(event_id, product_name, consumer_hid, start_time)
 ```
 
-Arbitrary data related to the event can optionally be provided by way
-of a detail object:
+Arbitrary data related to the usage event can optionally be provided
+by way of a detail object:
 
 ```ruby
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
-heroku_id = 'app1234@heroku.com'
+consumer_hid = 'app1234@heroku.com'
 start_time = Time.now.getutc
 detail = {type: 'web',
           description: 'bundle exec bin/web',
           kernel: 'us-east-1-a'}
-client.open_event(event_id, product_name, heroku_id, start_time, detail)
+client.open_usage_event(event_id, product_name, consumer_hid, start_time,
+                        detail)
 ```
 
 Keys in the detail object must be of type `Symbol` and values may only
@@ -68,28 +73,28 @@ be of type `String`, `Fixnum`, `Bignum`, `Float`, `TrueClass`,
 `FalseClass` or `NilClass`.  In other words, it's not possible to use
 nested structures in the detail object.
 
-### Closing an event
+#### Closing a usage event
 
-Closing an event works the same way as opening an event:
+Closing a usage event works the same way as opening one:
 
 ```ruby
 event_id = SecureRandom.uuid
 product_name = 'platform:dyno:logical'
-heroku_id = 'app1234@heroku.com'
+consumer_hid = 'app1234@heroku.com'
 stop_time = Time.now.getutc
-client.close_event(event_id, product_name, heroku_id, stop_time)
+client.close_event(event_id, product_name, consumer_hid, stop_time)
 ```
 
-### Retrieving usage information
+#### Retrieving usage information
 
 Usage information for a particular user can be retrieved by the
 client.  The start and stop time must both be specified in UTC:
 
 ```ruby
-user_id = 'user1234@heroku.com'
+user_hid = 'user1234@heroku.com'
 start_time = Time.utc(2013, 1)
 stop_time = Time.utc(2013, 2)
-events = client.usage_for_user(user_id, start_time, stop_time)
+events = client.usage_for_user(user_hid, start_time, stop_time)
 ```
 
 The `events` result is an `Array` of objects matching this format:
@@ -97,7 +102,7 @@ The `events` result is an `Array` of objects matching this format:
 ```ruby
 [{id: '<event-uuid>',
   product: '<name>',
-  consumer: '<heroku-id>',
+  consumer: '<consumer-hid>',
   start_time: <Time>,
   stop_time: <Time>,
   detail: {<key1>: <value1>,
@@ -110,11 +115,41 @@ In some cases it can be useful to exclude event data for certain
 products:
 
 ```ruby
-user_id = 'user1234@heroku.com'
+user_hid = 'user1234@heroku.com'
 start_time = Time.utc(2013, 1)
 stop_time = Time.utc(2013, 2)
-events = client.usage_for_user(user_id, start_time, stop_time,
+events = client.usage_for_user(user_hid, start_time, stop_time,
                                ['platform:dyno:physical'])
 ```
 
 You can pass one or more product names to exclude.
+
+### App ownership events
+
+App ownership events represent ownership of an app, for a period of
+time, by a user.
+
+#### Opening an app ownership event
+
+Each app ownership event must have a unique UUID provided by the
+service reporting it and the start time must be in UTC:
+
+```ruby
+event_id = SecureRandom.uuid
+user_hid = 'user1234@heroku.com'
+app_hid = 'app1234@heroku.com'
+start_time = Time.now.getutc
+client.open_app_ownership_event(event_id, user_hid, app_hid, start_time)
+```
+
+#### Closing an app ownership event
+
+Closing an app ownership event works the same way as opening one:
+
+```ruby
+event_id = SecureRandom.uuid
+user_hid = 'user1234@heroku.com'
+app_hid = 'app1234@heroku.com'
+stop_time = Time.now.getutc
+client.close_app_ownership_event(event_id, user_hid, app_hid, stop_time)
+```
