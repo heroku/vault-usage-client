@@ -142,7 +142,7 @@ start_time = Time.now.getutc
 client.open_app_ownership_event(event_id, user_hid, app_hid, start_time)
 ```
 
-#### Closing a usage event
+#### Closing an app ownership event
 
 Closing an app ownership event works the same way as opening one:
 
