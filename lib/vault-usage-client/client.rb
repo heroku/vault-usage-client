@@ -31,7 +31,8 @@ module Vault::Usage::Client
     # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
     #   unsuccessful HTTP status code.
-    def open_event(event_id, product_name, heroku_id, start_time, detail=nil)
+    def open_usage_event(event_id, product_name, heroku_id, start_time,
+                         detail=nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
@@ -59,7 +60,7 @@ module Vault::Usage::Client
     # @raise [InvalidTimeError] Raised if a non-UTC stop time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
     #   unsuccessful HTTP status code.
-    def close_event(event_id, product_name, heroku_id, stop_time)
+    def close_usage_event(event_id, product_name, heroku_id, stop_time)
       unless stop_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Stop time must be in UTC.')
       end
