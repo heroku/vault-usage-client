@@ -20,8 +20,9 @@ module Vault::Usage::Client
     #   event.
     # @param product_name [String] The name of the product that was used, such
     #   as `platform:dyno:logical` or `addon:memcache:100mb`.
-    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`,
-    #   that represents the user or app that used the specified product.
+    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`
+    #   or `user1234@heroku.com`, that represents the user or app that used
+    #   the specified product.
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC.
     # @param detail [Hash] Optionally, additional details to store with the
@@ -54,8 +55,9 @@ module Vault::Usage::Client
     #   event.
     # @param product_name [String] The name of the product that was used, such
     #   as `platform:dyno:logical` or `addon:memcache:100mb`.
-    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`,
-    #   that represents the user or app that used the specified product.
+    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`
+    #   or `user1234@heroku.com`, that represents the user or app that used
+    #   the specified product.
     # @param stop_time [Time] The end of the usage period, always in UTC.
     # @raise [InvalidTimeError] Raised if a non-UTC stop time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
@@ -73,7 +75,7 @@ module Vault::Usage::Client
     # Get the usage events for the apps owned by the specified user during the
     # specified period.
     #
-    # @param user_hid [String] The user ID, such as `user1234@heroku.com`, to
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`, to
     #   fetch usage data for.
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC, within which events must overlap to be included in usage data.
@@ -126,9 +128,9 @@ module Vault::Usage::Client
     #
     # @param event_id [String] A UUID that uniquely identifies the ownership
     #   event.
-    # @param user_hid [String] The user ID, such as `user1234@heroku.com`,
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`,
     #   that owns the specified app.
-    # @param app_hid [String] The app ID, such as `app1234@heroku.com`, that
+    # @param app_hid [String] The app HID, such as `app1234@heroku.com`, that
     #   is being transferred to the specified user.
     # @param start_time [Time] The beginning of the ownership period, always
     #   in UTC.
@@ -149,9 +151,9 @@ module Vault::Usage::Client
     #
     # @param event_id [String] A UUID that uniquely identifies the ownership
     #   event.
-    # @param user_hid [String] The user ID, such as `user1234@heroku.com`,
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`,
     #   that owned the specified app.
-    # @param app_hid [String] The app ID, such as `app1234@heroku.com`, that
+    # @param app_hid [String] The app HID, such as `app1234@heroku.com`, that
     #   is being transferred away from the specified user.
     # @param stop_time [Time] The end of the ownership period, always in UTC.
     # @raise [InvalidTimeError] Raised if a non-UTC stop time is provided.
