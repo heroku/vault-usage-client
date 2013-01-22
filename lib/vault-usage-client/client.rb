@@ -1,10 +1,10 @@
-module Vault::Usage::Client
-  # Raised if a non-UTC time is used with the client.
-  class InvalidTimeError < Exception
-  end
-
+module Vault::Usage
   # Client for the `Vault::Usage` HTTP API.
   class Client
+    # Raised if a non-UTC time is used with the client.
+    class InvalidTimeError < Exception
+    end
+
     # Instantiate a client.
     #
     # @param url [String] The URL to connect to.  Include the username and
