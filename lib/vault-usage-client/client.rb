@@ -20,8 +20,9 @@ module Vault::Usage::Client
     #   event.
     # @param product_name [String] The name of the product that was used, such
     #   as `platform:dyno:logical` or `addon:memcache:100mb`.
-    # @param heroku_id [String] The Heroku ID, such as `app1234@heroku.com`,
-    #   that represents the user or app that used the specified product.
+    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`
+    #   or `user1234@heroku.com`, that represents the user or app that used
+    #   the specified product.
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC.
     # @param detail [Hash] Optionally, additional details to store with the
@@ -31,11 +32,12 @@ module Vault::Usage::Client
     # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
     #   unsuccessful HTTP status code.
-    def open_event(event_id, product_name, heroku_id, start_time, detail=nil)
+    def open_usage_event(event_id, product_name, consumer_hid, start_time,
+                         detail=nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
-      path = "/products/#{product_name}/usage/#{heroku_id}" +
+      path = "/products/#{product_name}/usage/#{consumer_hid}" +
              "/events/#{event_id}/open/#{iso_format(start_time)}"
       unless detail.nil?
         headers = {'Content-Type' => 'application/json'}
@@ -53,17 +55,18 @@ module Vault::Usage::Client
     #   event.
     # @param product_name [String] The name of the product that was used, such
     #   as `platform:dyno:logical` or `addon:memcache:100mb`.
-    # @param heroku_id [String] The Heroku ID, such as `app1234@heroku.com`,
-    #   that represents the user or app that used the specified product.
+    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`
+    #   or `user1234@heroku.com`, that represents the user or app that used
+    #   the specified product.
     # @param stop_time [Time] The end of the usage period, always in UTC.
     # @raise [InvalidTimeError] Raised if a non-UTC stop time is provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
     #   unsuccessful HTTP status code.
-    def close_event(event_id, product_name, heroku_id, stop_time)
+    def close_usage_event(event_id, product_name, consumer_hid, stop_time)
       unless stop_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Stop time must be in UTC.')
       end
-      path = "/products/#{product_name}/usage/#{heroku_id}" +
+      path = "/products/#{product_name}/usage/#{consumer_hid}" +
              "/events/#{event_id}/close/#{iso_format(stop_time)}"
       connection = Excon.new(@url)
       connection.post(path: path, expects: [200])
@@ -72,7 +75,7 @@ module Vault::Usage::Client
     # Get the usage events for the apps owned by the specified user during the
     # specified period.
     #
-    # @param user_id [String] The user ID, such as `user1234@heroku.com`, to
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`, to
     #   fetch usage data for.
     # @param start_time [Time] The beginning of the usage period, always in
     #   UTC, within which events must overlap to be included in usage data.
@@ -99,14 +102,14 @@ module Vault::Usage::Client
     #                ...}},
     #       ...]}
     #   ```
-    def usage_for_user(user_id, start_time, stop_time, exclude=nil)
+    def usage_for_user(user_hid, start_time, stop_time, exclude=nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
       unless stop_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Stop time must be in UTC.')
       end
-      path = "/users/#{user_id}/usage/#{iso_format(start_time)}/" +
+      path = "/users/#{user_hid}/usage/#{iso_format(start_time)}/" +
              "#{iso_format(stop_time)}"
       unless exclude.nil? || exclude.empty?
         query = {exclude: exclude.join(',')}
@@ -119,6 +122,51 @@ module Vault::Usage::Client
           event[key] = parse_date(value) if date?(value)
         end
       end
+    end
+
+    # Report that ownership of an app by a user started at a particular time.
+    #
+    # @param event_id [String] A UUID that uniquely identifies the ownership
+    #   event.
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`,
+    #   that owns the specified app.
+    # @param app_hid [String] The app HID, such as `app1234@heroku.com`, that
+    #   is being transferred to the specified user.
+    # @param start_time [Time] The beginning of the ownership period, always
+    #   in UTC.
+    # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    def open_app_ownership_event(event_id, user_hid, app_hid, start_time)
+      unless start_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Start time must be in UTC.')
+      end
+      path = "/users/#{user_hid}/apps/#{app_hid}/open/#{event_id}" +
+             "/#{iso_format(start_time)}"
+      connection = Excon.new(@url)
+      connection.post(path: path, expects: [200])
+    end
+
+    # Report that ownership of an app by a user stopped at a particular time.
+    #
+    # @param event_id [String] A UUID that uniquely identifies the ownership
+    #   event.
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`,
+    #   that owned the specified app.
+    # @param app_hid [String] The app HID, such as `app1234@heroku.com`, that
+    #   is being transferred away from the specified user.
+    # @param stop_time [Time] The end of the ownership period, always in UTC.
+    # @raise [InvalidTimeError] Raised if a non-UTC stop time is provided.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    def close_app_ownership_event(event_id, user_hid, app_hid, stop_time)
+      unless stop_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Stop time must be in UTC.')
+      end
+      path = "/users/#{user_hid}/apps/#{app_hid}/close/#{event_id}" +
+             "/#{iso_format(stop_time)}"
+      connection = Excon.new(@url)
+      connection.post(path: path, expects: [200])
     end
 
     private
