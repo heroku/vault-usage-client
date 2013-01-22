@@ -1,6 +1,8 @@
 module Vault::Usage
   # Client for the `Vault::Usage` HTTP API.
   class Client
+    attr_reader :url
+
     # Raised if a non-UTC time is used with the client.
     class InvalidTimeError < Exception
     end
@@ -9,8 +11,8 @@ module Vault::Usage
     #
     # @param url [String] The URL to connect to.  Include the username and
     #   password to use when connecting.
-    def initialize(url)
-      @url = url
+    def initialize(url = nil)
+      @url = url || ENV['VAULT_USAGE_URL']
     end
 
     # Report that usage of a product, by a user or app, started at a

@@ -1,6 +1,8 @@
 require 'helper'
 
 class ClientTest < Vault::TestCase
+  include Vault::Test::EnvironmentHelpers
+
   def setup
     super
     Excon.stubs.clear
@@ -28,6 +30,14 @@ class ClientTest < Vault::TestCase
   # Convert a time to an ISO 8601 combined data and time format.
   def iso_format(time)
     time.strftime('%Y-%m-%dT%H:%M:%SZ')
+  end
+
+  # Client.new looks for VAULT_USAGE_URL if none is passed in to the constructor
+  def test_uses_env_for_url_if_not_given
+    url = 'http://foo:bar@example.com'
+    set_env 'VAULT_USAGE_URL', url
+    @client = Vault::Usage::Client.new
+    assert_equal(url, @client.url)
   end
 
   # Client.open_usage_event makes a POST request to the Vault::Usage HTTP API,
