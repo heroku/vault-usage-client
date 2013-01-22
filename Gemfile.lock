@@ -50,9 +50,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  excon
   rake
   rr
   vault-test-tools (~> 0.2.2)!
   vault-usage-client!
-  yajl-ruby
