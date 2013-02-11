@@ -40,11 +40,11 @@ class ClientTest < Vault::TestCase
     assert_equal(url, @client.url)
   end
 
-  # Client.open_usage_event makes a POST request to the Vault::Usage HTTP API,
+  # Client.open_usage_event makes a PUT request to the Vault::Usage HTTP API,
   # passing the supplied credentials using HTTP basic auth, to report that
   # usage of a product began at a particular time.
   def test_open_usage_event
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -52,7 +52,7 @@ class ClientTest < Vault::TestCase
                    "/events/#{@event_id}/open/#{iso_format(@start_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200}
+      {status: 201}
     end
     @client.open_usage_event(@event_id, @product_name, @app_hid, @start_time)
   end
@@ -63,11 +63,11 @@ class ClientTest < Vault::TestCase
     detail = {type: 'web',
               description: 'bundle exec bin/web',
               kernel: 'us-east-1-a'}
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       assert_equal('application/json', request[:headers]['Content-Type'])
       assert_equal(detail, JSON.parse(request[:body], {symbolize_keys: true}))
       Excon.stubs.pop
-      {status: 200}
+      {status: 201}
     end
     @client.open_usage_event(@event_id, @product_name, @app_hid, @start_time,
                              detail)
@@ -87,7 +87,7 @@ class ClientTest < Vault::TestCase
   # Excon::Errors::HTTPStatusError if an unsuccessful HTTP status code is
   # returned by the server.
   def test_open_usage_event_with_unsuccessful_response
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
@@ -96,11 +96,11 @@ class ClientTest < Vault::TestCase
     end
   end
 
-  # Client.close_usage_event makes a POST request to the Vault::Usage HTTP
+  # Client.close_usage_event makes a PUT request to the Vault::Usage HTTP
   # API, passing the supplied credentials using HTTP basic auth, to report
   # that usage of a product ended at a particular time.
   def test_close_usage_event
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -108,7 +108,7 @@ class ClientTest < Vault::TestCase
                    "/events/#{@event_id}/close/#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200}
+      {status: 201}
     end
     @client.close_usage_event(@event_id, @product_name, @app_hid, @stop_time)
   end
@@ -127,7 +127,7 @@ class ClientTest < Vault::TestCase
   # Excon::Errors::HTTPStatusError if an unsuccessful HTTP status code is
   # returned by the server.
   def test_close_usage_event_with_unsuccessful_response
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
@@ -248,12 +248,12 @@ class ClientTest < Vault::TestCase
     end
   end
 
-  # Client.open_app_ownership_event makes a POST request to the Vault::Usage
+  # Client.open_app_ownership_event makes a PUT request to the Vault::Usage
   # HTTP API, passing the supplied credentials using HTTP basic auth, to
   # report that ownership of an app, by a particular user, began at a
   # particular time.
   def test_open_app_ownership_event
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -261,7 +261,7 @@ class ClientTest < Vault::TestCase
                    "/#{iso_format(@start_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200}
+      {status: 201}
     end
     @client.open_app_ownership_event(@event_id, @user_hid, @app_hid,
                                      @start_time)
@@ -282,7 +282,7 @@ class ClientTest < Vault::TestCase
   # Excon::Errors::HTTPStatusError if an unsuccessful HTTP status code is
   # returned by the server.
   def test_open_app_ownership_event_with_unsuccessful_response
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
@@ -292,12 +292,12 @@ class ClientTest < Vault::TestCase
     end
   end
 
-  # Client.close_app_ownership_event makes a POST request to the Vault::Usage
+  # Client.close_app_ownership_event makes a PUT request to the Vault::Usage
   # HTTP API, passing the supplied credentials using HTTP basic auth, to
   # report that ownership of an app, by a particular user, began at a
   # particular time.
   def test_close_app_ownership_event
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com:443', request[:host_port])
@@ -305,7 +305,7 @@ class ClientTest < Vault::TestCase
                    "/#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200}
+      {status: 201}
     end
     @client.close_app_ownership_event(@event_id, @user_hid, @app_hid,
                                       @stop_time)
@@ -326,7 +326,7 @@ class ClientTest < Vault::TestCase
   # Excon::Errors::HTTPStatusError if an unsuccessful HTTP status code is
   # returned by the server.
   def test_close_app_ownership_event_with_unsuccessful_response
-    Excon.stub(method: :post) do |request|
+    Excon.stub(method: :put) do |request|
       Excon.stubs.pop
       {status: 400, body: 'Bad inputs provided.'}
     end
