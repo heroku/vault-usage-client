@@ -46,8 +46,8 @@ module Vault::Usage
         body = JSON.generate(detail)
       end
       connection = Excon.new(@url)
-      connection.post(path: path, headers: headers, body: body,
-                      expects: [200])
+      connection.put(path: path, headers: headers, body: body,
+                     expects: [201])
     end
 
     # Report that usage of a product, by a user or app, stopped at a
@@ -71,7 +71,7 @@ module Vault::Usage
       path = "/products/#{product_name}/usage/#{consumer_hid}" +
              "/events/#{event_id}/close/#{iso_format(stop_time)}"
       connection = Excon.new(@url)
-      connection.post(path: path, expects: [200])
+      connection.put(path: path, expects: [201])
     end
 
     # Get the usage events for the apps owned by the specified user during the
@@ -146,7 +146,7 @@ module Vault::Usage
       path = "/users/#{user_hid}/apps/#{app_hid}/open/#{event_id}" +
              "/#{iso_format(start_time)}"
       connection = Excon.new(@url)
-      connection.post(path: path, expects: [200])
+      connection.put(path: path, expects: [201])
     end
 
     # Report that ownership of an app by a user stopped at a particular time.
@@ -168,7 +168,7 @@ module Vault::Usage
       path = "/users/#{user_hid}/apps/#{app_hid}/close/#{event_id}" +
              "/#{iso_format(stop_time)}"
       connection = Excon.new(@url)
-      connection.post(path: path, expects: [200])
+      connection.put(path: path, expects: [201])
     end
 
     private
