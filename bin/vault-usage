@@ -1,0 +1,37 @@
+#!/usr/bin/env ruby
+
+lib = File.expand_path('../../lib', __FILE__)
+$LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
+
+require 'vault-usage-client'
+require 'colorize'
+
+user_hid = ARGV[0]
+start_time = Time.utc(*ARGV[1].split('-'))
+stop_time  = Time.utc(*ARGV[2].split('-'))
+
+client = Vault::Usage::Client.new
+
+all_events = client.usage_for_user(user_hid, start_time, stop_time, ['platform:dyno:physical'])[:events]
+
+all_events.group_by { |e| e[:consumer] }.each do |consumer, app_events|
+  puts "=== #{consumer} ===".blue
+
+  app_events.group_by { |e| e[:product] }.each do |product, product_events|
+
+    puts " #{product}"
+    product_events.
+      map { |event| OpenStruct.new(event) }.
+      sort_by(&:start_time).
+      each do |e|
+        puts "    #{e.id}".light_green
+        puts "    #{e.start_time} -> #{e.stop_time}: #{e.detail}".green
+        if e.start_time > e.stop_time
+          puts "    ERROR: start_time is after stop_time".red
+        end
+        puts
+    end
+
+  end
+  puts
+end
