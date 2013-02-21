@@ -23,7 +23,17 @@ Generate API documentation:
 
     rake yard
 
-## Using the client
+## Using the client from the command-line
+
+The `bin/vault-usage` command-line tool can be used to quickly see
+usage data for a particular user:
+
+```bash
+export VAULT_USAGE_URL=https://username:secret@vault-usage.herokuapp.com
+bin/vault-usage user123@heroku.com 2013-01-01 2013-02-01
+```
+
+## Using the client in Ruby
 
 The `Vault::Usage` API may only be accessed with valid credentials.
 You must supply these when you create a new client:
