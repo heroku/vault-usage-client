@@ -16,6 +16,7 @@ PATH
   remote: .
   specs:
     vault-usage-client (0.0.1)
+      colorize
       excon
       yajl-ruby
 
@@ -23,6 +24,7 @@ GEM
   remote: http://rubygems.org/
   specs:
     ansi (1.4.3)
+    colorize (0.5.8)
     excon (0.16.10)
     json (1.7.6)
     minitest (4.6.0)
