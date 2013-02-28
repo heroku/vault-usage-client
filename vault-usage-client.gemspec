@@ -14,6 +14,7 @@ Gem::Specification.new do |gem|
   gem.files         = `git ls-files`.split($/)
   gem.test_files    = gem.files.grep('^(test|spec|features)/')
   gem.require_paths = ["lib"]
+  gem.executables   = ['vault-usage']
 
   gem.add_dependency 'excon'
   gem.add_dependency 'yajl-ruby'
