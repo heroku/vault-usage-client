@@ -1,5 +1,7 @@
 .bundle
 doc
+.env
+.rvmrc
 test/.test.profile*
 vendor
 .yardoc
