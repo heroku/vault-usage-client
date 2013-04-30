@@ -118,7 +118,8 @@ module Vault::Usage
       end
       connection = Excon.new(@url)
       response = connection.get(path: path, expects: [200], query: query)
-      events = JSON.parse(response.body, {symbolize_keys: true})
+      payload = JSON.parse(response.body, {symbolize_keys: true})
+      events = payload[:events]
       events.each do |event|
         event.each do |key, value|
           event[key] = parse_date(value) if date?(value)

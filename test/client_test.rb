@@ -152,7 +152,7 @@ class ClientTest < Vault::TestCase
                    "#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate([])}
+      {status: 200, body: JSON.generate({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time,
                                             @stop_time))
@@ -164,7 +164,7 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal({exclude: 'platform:dyno:physical'}, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate([])}
+      {status: 200, body: JSON.generate({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             ['platform:dyno:physical']))
@@ -178,7 +178,7 @@ class ClientTest < Vault::TestCase
       assert_equal({exclude: 'platform:dyno:physical,addons:memcache:100mb'},
                    request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate([])}
+      {status: 200, body: JSON.generate({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             ['platform:dyno:physical',
@@ -191,7 +191,7 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal(nil, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate([])}
+      {status: 200, body: JSON.generate({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             []))
@@ -208,7 +208,7 @@ class ClientTest < Vault::TestCase
                  start_time: iso_format(@start_time),
                  stop_time: iso_format(@stop_time),
                  detail: {}}]
-      {status: 200, body: JSON.generate(events)}
+      {status: 200, body: JSON.generate({events: events})}
     end
     assert_equal([{id: @event_id,
                    product: @product_name,
