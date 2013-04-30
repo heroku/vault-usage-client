@@ -21,7 +21,7 @@ PATH
       yajl-ruby
 
 GEM
-  remote: http://rubygems.org/
+  remote: https://rubygems.org/
   specs:
     ansi (1.4.3)
     colorize (0.5.8)
