@@ -13,13 +13,13 @@ stop_time  = Time.utc(*ARGV[2].split('-'))
 
 client = Vault::Usage::Client.new
 
-all_events = client.usage_for_user(user_hid, start_time, stop_time, ['platform:dyno:physical'])[:events]
+all_events = client.usage_for_user(user_hid, start_time, stop_time,
+                                   ['platform:dyno:physical'])
 
 all_events.group_by { |e| e[:consumer] }.each do |consumer, app_events|
   puts "=== #{consumer} ===".blue
 
   app_events.group_by { |e| e[:product] }.each do |product, product_events|
-
     puts " #{product}"
     product_events.
       map { |event| OpenStruct.new(event) }.
@@ -32,7 +32,6 @@ all_events.group_by { |e| e[:consumer] }.each do |consumer, app_events|
         end
         puts
     end
-
   end
   puts
 end
