@@ -104,7 +104,7 @@ module Vault::Usage
     #                ...}},
     #       ...]}
     #   ```
-    def usage_for_user(user_hid, start_time, stop_time, exclude=nil)
+    def usage_for_user(user_hid, start_time, stop_time, exclude=nil, callback_url = nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
@@ -113,12 +113,15 @@ module Vault::Usage
       end
       path = "/users/#{user_hid}/usage/#{iso_format(start_time)}/" +
              "#{iso_format(stop_time)}"
+      query = {}
       unless exclude.nil? || exclude.empty?
-        query = {exclude: exclude.join(',')}
+        query[:exclude] = exclude.join(',')
       end
+      query[:callback_url] = callback_url if callback_url
       connection = Excon.new(@url)
       response = connection.get(path: path, expects: [200], query: query)
       payload = JSON.parse(response.body, {symbolize_keys: true})
+      return payload[:job_id] if payload[:job_id]
       events = payload[:events]
       events.each do |event|
         event.each do |key, value|
