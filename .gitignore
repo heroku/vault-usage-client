@@ -5,3 +5,4 @@ doc
 test/.test.profile*
 vendor
 .yardoc
+pkg

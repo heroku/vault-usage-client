@@ -170,6 +170,16 @@ class ClientTest < Vault::TestCase
                                             ['platform:dyno:physical']))
   end
 
+  def test_usage_for_user_with_callback_url
+    Excon.stub(method: :get) do |request|
+      assert_equal({callback_url: 'http://example.com'}, request[:query])
+      Excon.stubs.pop
+      {status: 200, body: JSON.generate({job_id: 'DEADBEEF'})}
+    end
+    assert_equal('DEADBEEF',
+      @client.usage_for_user(@user_hid, @start_time, @stop_time, nil,'http://example.com'))
+  end
+
   # Client.usage_for_user comma-separates product names, when many are
   # provided in the exclusion list, and passes them to the server using a
   # single query argument.
@@ -189,7 +199,7 @@ class ClientTest < Vault::TestCase
   # not passing one at all.
   def test_usage_for_user_with_empty_exclude
     Excon.stub(method: :get) do |request|
-      assert_equal(nil, request[:query])
+      assert_equal({}, request[:query])
       Excon.stubs.pop
       {status: 200, body: JSON.generate({events: []})}
     end
