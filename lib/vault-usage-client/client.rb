@@ -121,6 +121,7 @@ module Vault::Usage
       connection = Excon.new(@url)
       response = connection.get(path: path, expects: [200], query: query)
       payload = JSON.parse(response.body, {symbolize_keys: true})
+      return payload[:job_id] if payload[:job_id]
       events = payload[:events]
       events.each do |event|
         event.each do |key, value|

@@ -174,10 +174,10 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal({callback_url: 'http://example.com'}, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({events: []})}
+      {status: 200, body: JSON.generate({job_id: 'DEADBEEF'})}
     end
-    assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
-                                            nil,'http://example.com'))
+    assert_equal('DEADBEEF',
+      @client.usage_for_user(@user_hid, @start_time, @stop_time, nil,'http://example.com'))
   end
 
   # Client.usage_for_user comma-separates product names, when many are
