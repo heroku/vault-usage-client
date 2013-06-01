@@ -15,7 +15,7 @@ GIT
 PATH
   remote: .
   specs:
-    vault-usage-client (0.0.4)
+    vault-usage-client (0.0.5)
       colorize
       excon
       yajl-ruby
