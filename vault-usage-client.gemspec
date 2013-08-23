@@ -17,6 +17,6 @@ Gem::Specification.new do |gem|
   gem.executables   = ['vault-usage']
 
   gem.add_dependency 'excon'
-  gem.add_dependency 'yajl-ruby'
+  gem.add_dependency "multi_json"
   gem.add_dependency 'colorize'
 end
