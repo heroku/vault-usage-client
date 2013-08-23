@@ -43,7 +43,7 @@ module Vault::Usage
              "/events/#{event_id}/open/#{iso_format(start_time)}"
       unless detail.nil?
         headers = {'Content-Type' => 'application/json'}
-        body = JSON.generate(detail)
+        body = MultiJson.dump(detail)
       end
       connection = Excon.new(@url)
       connection.put(path: path, headers: headers, body: body,
@@ -120,7 +120,7 @@ module Vault::Usage
       query[:callback_url] = callback_url if callback_url
       connection = Excon.new(@url)
       response = connection.get(path: path, expects: [200], query: query)
-      payload = JSON.parse(response.body, {symbolize_keys: true})
+      payload = MultiJson.load(response.body, {symbolize_keys: true})
       return payload[:job_id] if payload[:job_id]
       events = payload[:events]
       events.each do |event|

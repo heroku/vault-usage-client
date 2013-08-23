@@ -1,5 +1,5 @@
 require 'excon'
-require 'yajl/json_gem'
+require 'multi_json'
 require 'date'
 
 module Vault
