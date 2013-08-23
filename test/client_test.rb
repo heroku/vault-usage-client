@@ -66,7 +66,7 @@ class ClientTest < Vault::TestCase
               kernel: 'us-east-1-a'}
     Excon.stub(method: :put) do |request|
       assert_equal('application/json', request[:headers]['Content-Type'])
-      assert_equal(detail, JSON.parse(request[:body], {symbolize_keys: true}))
+      assert_equal(detail, MultiJson.load(request[:body], {symbolize_keys: true}))
       Excon.stubs.pop
       {status: 201}
     end
@@ -152,7 +152,7 @@ class ClientTest < Vault::TestCase
                    "#{iso_format(@stop_time)}",
                    request[:path])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({events: []})}
+      {status: 200, body: MultiJson.dump({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time,
                                             @stop_time))
@@ -164,7 +164,7 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal({exclude: 'platform:dyno:physical'}, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({events: []})}
+      {status: 200, body: MultiJson.dump({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             ['platform:dyno:physical']))
@@ -174,7 +174,7 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal({callback_url: 'http://example.com'}, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({job_id: 'DEADBEEF'})}
+      {status: 200, body: MultiJson.dump({job_id: 'DEADBEEF'})}
     end
     assert_equal('DEADBEEF',
       @client.usage_for_user(@user_hid, @start_time, @stop_time, nil,'http://example.com'))
@@ -188,7 +188,7 @@ class ClientTest < Vault::TestCase
       assert_equal({exclude: 'platform:dyno:physical,addons:memcache:100mb'},
                    request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({events: []})}
+      {status: 200, body: MultiJson.dump({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             ['platform:dyno:physical',
@@ -201,7 +201,7 @@ class ClientTest < Vault::TestCase
     Excon.stub(method: :get) do |request|
       assert_equal({}, request[:query])
       Excon.stubs.pop
-      {status: 200, body: JSON.generate({events: []})}
+      {status: 200, body: MultiJson.dump({events: []})}
     end
     assert_equal([], @client.usage_for_user(@user_hid, @start_time, @stop_time,
                                             []))
@@ -218,7 +218,7 @@ class ClientTest < Vault::TestCase
                  start_time: iso_format(@start_time),
                  stop_time: iso_format(@stop_time),
                  detail: {}}]
-      {status: 200, body: JSON.generate({events: events})}
+      {status: 200, body: MultiJson.dump({events: events})}
     end
     assert_equal([{id: @event_id,
                    product: @product_name,
