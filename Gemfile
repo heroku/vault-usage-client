@@ -8,5 +8,5 @@ end
 
 group :test do
   gem 'rr'
-  gem 'vault-test-tools', '~> 0.2.2', :git => 'https://github.com/heroku/vault-test-tools.git'
+  gem 'vault-test-tools'
 end
