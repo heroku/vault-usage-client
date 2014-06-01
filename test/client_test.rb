@@ -66,7 +66,8 @@ class ClientTest < Vault::TestCase
               kernel: 'us-east-1-a'}
     Excon.stub(method: :put) do |request|
       assert_equal('application/json', request[:headers]['Content-Type'])
-      assert_equal(detail, MultiJson.load(request[:body], {symbolize_keys: true}))
+      assert_equal(detail, MultiJson.load(request[:body],
+                                          {symbolize_keys: true}))
       Excon.stubs.pop
       {status: 201}
     end
@@ -135,6 +136,79 @@ class ClientTest < Vault::TestCase
     end
     assert_raises Excon::Errors::BadRequest do
       @client.close_usage_event(@event_id, @product_name, @app_hid, @stop_time)
+    end
+  end
+
+  # Client.open_close_usage_event makes a PUT request to the Vault::Usage HTTP
+  # API, passing the supplied credentials using HTTP basic auth, to report
+  # that usage of a product began at a particular time.
+  def test_open_close_usage_event
+    Excon.stub(method: :put) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
+      assert_equal('vault-usage.herokuapp.com', request[:host])
+      assert_equal('443', request[:port])
+      assert_equal("/products/#{@product_name}/usage/#{@app_hid}" +
+                   "/events/#{@event_id}/open/#{iso_format(@start_time)}" +
+                   "/close/#{iso_format(@stop_time)}",
+                   request[:path])
+      Excon.stubs.pop
+      {status: 201}
+    end
+    @client.open_close_usage_event(@event_id, @product_name, @app_hid,
+                                   @start_time, @stop_time)
+  end
+
+  # Client.open_close_usage_event optionally accepts a detail hash which is
+  # sent as a JSON payload in the request body when provided.
+  def test_open_close_usage_event_with_detail
+    detail = {type: 'web',
+              description: 'bundle exec bin/web',
+              kernel: 'us-east-1-a'}
+    Excon.stub(method: :put) do |request|
+      assert_equal('application/json', request[:headers]['Content-Type'])
+      assert_equal(detail, MultiJson.load(request[:body],
+                                          {symbolize_keys: true}))
+      Excon.stubs.pop
+      {status: 201}
+    end
+    @client.open_close_usage_event(@event_id, @product_name, @app_hid,
+                                   @start_time, @stop_time, detail)
+  end
+
+  # Client.open_close_usage_event raises an InvalidTimeError if the start time
+  # is not in UTC.
+  def test_open_close_usage_event_with_non_utc_start_time
+    start_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
+    error = assert_raises Vault::Usage::Client::InvalidTimeError do
+      @client.open_close_usage_event(@event_id, @product_name, @app_hid,
+                                     start_time, @stop_time)
+    end
+    assert_equal('Start time must be in UTC.', error.message)
+  end
+
+  # Client.open_close_usage_event raises an InvalidTimeError if the stop time
+  # is not in UTC.
+  def test_open_close_usage_event_with_non_utc_stop_time
+    stop_time = Time.new(2013, 1, 12, 15, 25, 0, '+09:00')
+    error = assert_raises Vault::Usage::Client::InvalidTimeError do
+      @client.open_close_usage_event(@event_id, @product_name, @app_hid,
+                                     @start_time, stop_time)
+    end
+    assert_equal('Stop time must be in UTC.', error.message)
+  end
+
+  # Client.open_close_usage_event raises the appropriate
+  # Excon::Errors::HTTPStatusError if an unsuccessful HTTP status code is
+  # returned by the server.
+  def test_open_close_usage_event_with_unsuccessful_response
+    Excon.stub(method: :put) do |request|
+      Excon.stubs.pop
+      {status: 400, body: 'Bad inputs provided.'}
+    end
+    assert_raises Excon::Errors::BadRequest do
+      @client.open_close_usage_event(@event_id, @product_name, @app_hid,
+                                     @start_time, @stop_time)
     end
   end
 
