@@ -74,6 +74,46 @@ module Vault::Usage
       connection.put(path: path, expects: [201])
     end
 
+    # Report that usage of a product, by a user or app, started at a
+    # particular time.
+    #
+    # @param event_id [String] A UUID that uniquely identifies the usage
+    #   event.
+    # @param product_name [String] The name of the product that was used, such
+    #   as `platform:dyno:logical` or `addon:memcache:100mb`.
+    # @param consumer_hid [String] The Heroku ID, such as `app1234@heroku.com`
+    #   or `user1234@heroku.com`, that represents the user or app that used
+    #   the specified product.
+    # @param start_time [Time] The beginning of the usage period, always in
+    #   UTC.
+    # @param stop_time [Time] The end of the usage period, always in UTC.
+    # @param detail [Hash] Optionally, additional details to store with the
+    #   event.  Keys must be of type `Symbol` and values may only be of type
+    #   `String`, `Fixnum`, `Bignum`, `Float`, `TrueClass`, `FalseClass` or
+    #   `NilClass`.
+    # @raise [InvalidTimeError] Raised if a non-UTC start time is provided.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    def open_close_usage_event(event_id, product_name, consumer_hid,
+                               start_time, stop_time, detail=nil)
+      unless start_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Start time must be in UTC.')
+      end
+      unless stop_time.zone.eql?('UTC')
+        raise InvalidTimeError.new('Stop time must be in UTC.')
+      end
+      path = "/products/#{product_name}/usage/#{consumer_hid}" +
+             "/events/#{event_id}/open/#{iso_format(start_time)}" +
+             "/close/#{iso_format(stop_time)}"
+      unless detail.nil?
+        headers = {'Content-Type' => 'application/json'}
+        body = MultiJson.dump(detail)
+      end
+      connection = Excon.new(@url)
+      connection.put(path: path, headers: headers, body: body,
+                     expects: [201])
+    end
+
     # Get the usage events for the apps owned by the specified user during the
     # specified period.
     #
