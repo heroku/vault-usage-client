@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    vault-usage-client (0.0.6)
+    vault-usage-client (0.0.7)
       colorize
       excon
       multi_json
