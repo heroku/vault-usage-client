@@ -424,4 +424,20 @@ class ClientTest < Vault::TestCase
                                         @stop_time)
     end
   end
+
+  # Client.open_dynos_for_ap makes a GET request to the Vault::Usage HTTP API,
+  # passing the supplied credentials using HTTP basic auth, to retrieve the
+  # open dyno usage events for a particular app
+  def test_usage_for_user
+    Excon.stub(method: :get) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
+      assert_equal('vault-usage.herokuapp.com', request[:host])
+      assert_equal('443', request[:port])
+      assert_equal("/apps/#{@app_hid}/ps/open", request[:path])
+      Excon.stubs.pop
+      {status: 200, body: MultiJson.dump({events: []})}
+    end
+    assert_equal([], @client.open_dynos_for_app(@app_hid))
+  end
 end

@@ -41,7 +41,7 @@ You must supply these when you create a new client:
 ```ruby
 require 'vault-usage-client'
 
-client = Vault::Usage::Client::Client.new(
+client = Vault::Usage::Client.new(
   'https://username:secret@vault-usage.herokuapp.com')
 ```
 
