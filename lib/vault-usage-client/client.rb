@@ -170,6 +170,40 @@ module Vault::Usage
       end
     end
 
+    # Get the open dyno usage events for the specified app
+    #
+    # @param app_hid [String] The app HID, such as `app1234@heroku.com`, to
+    #   fetch open dyno usage data for.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    # @return [Array] A list of usage events for the specified app, matching
+    #   the following format:
+    #
+    #   ```
+    #     [{id: '<event-uuid>',
+    #       product: '<name>',
+    #       consumer: '<heroku-id>',
+    #       start_time: <Time>,
+    #       stop_time: <Time>,
+    #       detail: {<key1>: <value1>,
+    #                <key2>: <value2>,
+    #                ...}},
+    #       ...]}
+    #   ```
+    def open_dynos_for_app(app_hid)
+      path = "/apps/#{app_hid}/ps/open"
+      query = {}
+      connection = Excon.new(@url)
+      response = connection.get(path: path, expects: [200], query: query)
+      payload = MultiJson.load(response.body, {symbolize_keys: true})
+      events = payload[:events]
+      events.each do |event|
+        event.each do |key, value|
+          event[key] = parse_date(value) if date?(value)
+        end
+      end
+    end
+
     # Report that ownership of an app by a user started at a particular time.
     #
     # @param event_id [String] A UUID that uniquely identifies the ownership
