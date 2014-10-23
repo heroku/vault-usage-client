@@ -48,7 +48,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/products/#{@product_name}/usage/#{@app_hid}" +
                    "/events/#{@event_id}/open/#{iso_format(@start_time)}",
                    request[:path])
@@ -106,7 +106,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/products/#{@product_name}/usage/#{@app_hid}" +
                    "/events/#{@event_id}/close/#{iso_format(@stop_time)}",
                    request[:path])
@@ -147,7 +147,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/products/#{@product_name}/usage/#{@app_hid}" +
                    "/events/#{@event_id}/open/#{iso_format(@start_time)}" +
                    "/close/#{iso_format(@stop_time)}",
@@ -221,7 +221,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/users/#{@user_hid}/usage/#{iso_format(@start_time)}/" +
                    "#{iso_format(@stop_time)}",
                    request[:path])
@@ -344,7 +344,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/users/#{@user_hid}/apps/#{@app_hid}/open/#{@event_id}" +
                    "/#{iso_format(@start_time)}",
                    request[:path])
@@ -389,7 +389,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/users/#{@user_hid}/apps/#{@app_hid}/close/#{@event_id}" +
                    "/#{iso_format(@stop_time)}",
                    request[:path])
@@ -433,7 +433,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/apps/#{@app_hid}/ps/open", request[:path])
       Excon.stubs.pop
       {status: 200, body: MultiJson.dump({events: []})}
@@ -449,7 +449,7 @@ class ClientTest < Vault::TestCase
       assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
                    request[:headers]['Authorization'])
       assert_equal('vault-usage.herokuapp.com', request[:host])
-      assert_equal('443', request[:port])
+      assert_equal(443, request[:port])
       assert_equal("/users/#{@user_hid}/usage/product/#{@product_name}", request[:path])
       Excon.stubs.pop
       {status: 200, body: MultiJson.dump({events: []})}
