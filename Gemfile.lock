@@ -75,6 +75,7 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  pry
   rake
   rr
   scrolls
