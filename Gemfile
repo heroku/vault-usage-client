@@ -12,3 +12,5 @@ group :test do
   gem 'scrolls'
   gem 'vault-test-tools'
 end
+
+gem 'pry', group: [:development, :test]

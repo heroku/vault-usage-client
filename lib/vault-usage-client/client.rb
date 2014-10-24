@@ -170,6 +170,42 @@ module Vault::Usage
       end
     end
 
+    # Get the usage events for a product specific to a user.
+    #
+    # @param user_hid [String] The user HID, such as `user1234@heroku.com`, to
+    #   fetch usage data for.
+    # @param product_name [String] The product name such as `account:credit:lumpsum`, to
+    #   fetch usage data for.
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    # @return [Array] A list of usage events for the specified user, matching
+    #   the following format:
+    #
+    #   ```
+    #     [{id: '<event-uuid>',
+    #       product: '<name>',
+    #       consumer: '<heroku-id>',
+    #       start_time: <Time>,
+    #       stop_time: <Time>,
+    #       detail: {<key1>: <value1>,
+    #                <key2>: <value2>,
+    #                ...}},
+    #       ...]}
+    #   ```
+    def usage_for_user_by_product(user_hid, product_name)
+      path = "/users/#{user_hid}/usage/product/#{product_name}"
+      connection = Excon.new(@url)
+      response = connection.get(path: path, expects: [200])
+      payload = MultiJson.load(response.body, {symbolize_keys: true})
+      return payload[:job_id] if payload[:job_id]
+      events = payload[:events]
+      events.each do |event|
+        event.each do |key, value|
+          event[key] = parse_date(value) if date?(value)
+        end
+      end
+    end
+
     # Get the open dyno usage events for the specified app
     #
     # @param app_hid [String] The app HID, such as `app1234@heroku.com`, to
