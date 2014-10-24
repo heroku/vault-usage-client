@@ -17,8 +17,6 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
   gem.executables   = ['vault-usage']
 
-  gem.add_development_dependency 'pry'
-
   gem.add_dependency 'excon'
   gem.add_dependency 'multi_json'
   gem.add_dependency 'colorize'
