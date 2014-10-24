@@ -170,8 +170,7 @@ module Vault::Usage
       end
     end
 
-    # Get the usage events for the apps owned by the specified user during the
-    # specified period.
+    # Get the usage events for a product specific to a user.
     #
     # @param user_hid [String] The user HID, such as `user1234@heroku.com`, to
     #   fetch usage data for.
