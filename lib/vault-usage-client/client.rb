@@ -114,6 +114,32 @@ module Vault::Usage
                      expects: [201])
     end
 
+    # Request a single usage event.
+    #
+    # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
+    #   unsuccessful HTTP status code.
+    # @return [Array] A single usage event, matching the following format:
+    #
+    #     ```json
+    #       {id: '<event-uuid>',
+    #        product: '<name>',
+    #        consumer: '<heroku-id>',
+    #        start_time: '<YYYY-MM-DDTHH:MM:SSZ>',
+    #        stop_time: '<YYYY-MM-DDTHH:MM:SSZ>',
+    #        detail: {<key1>: <value1>,
+    #                 <key2>: <value2> }
+    #       }
+    #
+    def usage_for_event(event_id)
+      path = "/usage_events/#{event_id}"
+      connection = Excon.new(@url)
+      response = connection.get(path: path, expects: [200])
+      event = MultiJson.load(response.body, {symbolize_keys: true})
+      event.each do |key, value|
+        event[key] = parse_date(value) if date?(value)
+      end
+    end
+
     # Get the usage events for the apps owned by the specified user during the
     # specified period.
     #

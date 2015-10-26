@@ -212,6 +212,30 @@ class ClientTest < Vault::TestCase
     end
   end
 
+  def test_usage_for_event
+    Excon.stub(method: :get) do |request|
+      assert_equal('Basic dXNlcm5hbWU6c2VjcmV0',
+                   request[:headers]['Authorization'])
+      assert_equal('vault-usage.herokuapp.com', request[:host])
+      assert_equal(443, request[:port])
+      assert_equal("/usage_events/#{@event_id}",
+                   request[:path])
+      Excon.stubs.pop
+      {status: 200, body: MultiJson.dump({id: @event_id,
+                                          product: @product_name,
+                                          consumer: @app_hid,
+                                          start_time: iso_format(@start_time),
+                                          stop_time: iso_format(@stop_time),
+                                          detail: {}})}
+    end
+    assert_equal({id: @event_id,
+                  product: @product_name,
+                  consumer: @app_hid,
+                  start_time: @start_time,
+                  stop_time: @stop_time,
+                  detail: {}}, @client.usage_for_event(@event_id))
+  end
+
   # Client.usage_for_user makes a GET request to the Vault::Usage HTTP API,
   # passing the supplied credentials using HTTP basic auth, to retrieve the
   # usage events for a particular user that occurred during the specified
