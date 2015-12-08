@@ -118,7 +118,7 @@ The `events` result is an `Array` of objects matching this format:
   detail: {<key1>: <value1>,
            <key2>: <value2>,
            ...}},
-  ...]}
+  ...]
 ```
 
 In some cases it can be useful to exclude event data for certain
@@ -133,6 +133,28 @@ events = client.usage_for_user(user_hid, start_time, stop_time,
 ```
 
 You can pass one or more product names to exclude.
+
+#### Retrieving a single usage event
+
+A usage event can be retrieved with the client:
+
+```
+event_id = '3b1086ea-07df-4324-a35f-b28a1474bd9b'
+event = client.usage_for_event(event_id)
+```
+
+The `event` result is an object matching this format:
+
+```ruby
+{id: '<event-uuid>',
+  product: '<name>',
+  consumer: '<consumer-hid>',
+  start_time: <Time>,
+  stop_time: <Time>,
+  detail: {<key1>: <value1>,
+           <key2>: <value2>,
+           ...}}
+```
 
 ### App ownership events
 
