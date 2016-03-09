@@ -152,6 +152,10 @@ module Vault::Usage
     # @param exclude [Array] Optionally, a list of product names, such as
     #   `['platform:dyno:physical', 'addon:memcache:100mb']`, to be excluded
     #   from usage data.
+    # @param callback_url [String] The URL vault-usage will callback after generating
+    # usage events JSON
+    # @param snapshot [Boolean] Whether or not to return only events that were open
+    # at the start_time
     # @raise [InvalidTimeError] Raised if a non-UTC start or stop time is
     #   provided.
     # @raise [Excon::Errors::HTTPStatusError] Raised if the server returns an
@@ -170,7 +174,7 @@ module Vault::Usage
     #                ...}},
     #       ...]}
     #   ```
-    def usage_for_user(user_hid, start_time, stop_time, exclude=nil, callback_url = nil)
+    def usage_for_user(user_hid, start_time, stop_time, exclude=nil, callback_url=nil, snapshot=nil)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
@@ -178,8 +182,9 @@ module Vault::Usage
         raise InvalidTimeError.new('Stop time must be in UTC.')
       end
       path = "/users/#{user_hid}/usage/#{iso_format(start_time)}/" +
-             "#{iso_format(stop_time)}"
+                   "#{iso_format(stop_time)}"
       query = {}
+      query[:snapshot] = true if snapshot
       unless exclude.nil? || exclude.empty?
         query[:exclude] = exclude.join(',')
       end

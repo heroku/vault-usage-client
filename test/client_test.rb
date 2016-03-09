@@ -278,6 +278,16 @@ class ClientTest < Vault::TestCase
       @client.usage_for_user(@user_hid, @start_time, @stop_time, nil,'http://example.com'))
   end
 
+  def test_usage_for_user_with_callback_url_and_snapshot
+    Excon.stub(method: :get) do |request|
+      assert_equal({callback_url: 'http://example.com', snapshot: true}, request[:query])
+      Excon.stubs.pop
+      {status: 200, body: MultiJson.dump({job_id: 'DEADBEEF'})}
+    end
+    assert_equal('DEADBEEF',
+      @client.usage_for_user(@user_hid, @start_time, @stop_time, nil,'http://example.com', true))
+  end
+
   # Client.usage_for_user comma-separates product names, when many are
   # provided in the exclusion list, and passes them to the server using a
   # single query argument.
