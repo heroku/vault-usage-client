@@ -174,7 +174,7 @@ module Vault::Usage
     #                ...}},
     #       ...]}
     #   ```
-    def usage_for_user(user_hid, start_time, stop_time, exclude=nil, callback_url=nil, snapshot=nil)
+    def usage_for_user(user_hid, start_time, stop_time, exclude=nil, callback_url=nil, snapshot=false)
       unless start_time.zone.eql?('UTC')
         raise InvalidTimeError.new('Start time must be in UTC.')
       end
