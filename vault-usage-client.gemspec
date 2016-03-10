@@ -17,6 +17,8 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
   gem.executables   = ['vault-usage']
 
+  gem.add_development_dependency 'rake', '< 11.0'
+
   gem.add_runtime_dependency 'excon', '~>0.45'
   gem.add_runtime_dependency 'multi_json', '~>1.11'
   gem.add_runtime_dependency 'colorize', '~>0.7'

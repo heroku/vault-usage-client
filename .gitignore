@@ -6,3 +6,4 @@ test/.test.profile*
 vendor
 .yardoc
 pkg
+Gemfile.lock
