@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    vault-usage-client (0.0.12)
+    vault-usage-client (1.0.0)
       excon
       multi_json
       rainbow
