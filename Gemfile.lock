@@ -1,21 +1,20 @@
 PATH
   remote: .
   specs:
-    vault-usage-client (0.0.12)
-      colorize
+    vault-usage-client (1.0.0)
       excon
       multi_json
+      rainbow
 
 GEM
   remote: https://rubygems.org/
   specs:
-    ansi (1.4.3)
+    ansi (1.5.0)
     blankslate (2.1.2.4)
     celluloid (0.15.2)
       timers (~> 1.1.0)
     coderay (1.1.0)
-    colorize (0.7.3)
-    excon (0.39.5)
+    excon (0.62.0)
     ffi (1.9.3)
     formatador (0.2.5)
     guard (2.6.1)
@@ -35,20 +34,21 @@ GEM
       parslet (~> 1.5)
     lumberjack (1.0.9)
     method_source (0.8.2)
-    mini_portile (0.6.0)
+    mini_portile2 (2.4.0)
     minitest (4.7.5)
-    multi_json (1.10.1)
-    nokogiri (1.6.2.1)
-      mini_portile (= 0.6.0)
+    multi_json (1.13.1)
+    nokogiri (1.10.1)
+      mini_portile2 (~> 2.4.0)
     parslet (1.6.1)
       blankslate (~> 2.0)
     pry (0.10.0)
       coderay (~> 1.1.0)
       method_source (~> 0.8.1)
       slop (~> 3.4)
-    rack (1.6.4)
+    rack (2.0.6)
     rack-test (0.6.2)
       rack (>= 1.0)
+    rainbow (3.0.0)
     rake (10.1.0)
     rb-fsevent (0.9.4)
     rb-inotify (0.9.5)
@@ -69,7 +69,7 @@ GEM
       rack-test
       rr
       turn
-    yard (0.8.7.2)
+    yard (0.9.18)
 
 PLATFORMS
   ruby
@@ -84,4 +84,4 @@ DEPENDENCIES
   yard
 
 BUNDLED WITH
-   1.10.6
+   1.17.3

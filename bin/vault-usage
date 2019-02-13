@@ -5,7 +5,7 @@ lib = File.expand_path('../../lib', __FILE__)
 $LOAD_PATH.unshift(lib) unless $LOAD_PATH.include?(lib)
 
 require 'vault-usage-client'
-require 'colorize'
+require 'rainbow/ext/string'
 
 user_hid = ARGV[0]
 start_time = Time.utc(*ARGV[1].split('-'))
@@ -17,7 +17,7 @@ all_events = client.usage_for_user(user_hid, start_time, stop_time,
                                    ['platform:dyno:physical'])
 
 all_events.group_by { |e| e[:consumer] }.each do |consumer, app_events|
-  puts "=== #{consumer} ===".blue
+  puts "=== #{consumer} ===".color(:blue)
 
   app_events.group_by { |e| e[:product] }.each do |product, product_events|
     puts " #{product}"
@@ -25,10 +25,10 @@ all_events.group_by { |e| e[:consumer] }.each do |consumer, app_events|
       map { |event| OpenStruct.new(event) }.
       sort_by(&:start_time).
       each do |e|
-        puts "    #{e.id}".light_green
-        puts "    #{e.start_time} -> #{e.stop_time}: #{e.detail}".green
+        puts "    #{e.id}".color(:lightgreen)
+        puts "    #{e.start_time} -> #{e.stop_time}: #{e.detail}".color(:green)
         if e.start_time > e.stop_time
-          puts "    ERROR: start_time is after stop_time".red
+          puts "    ERROR: start_time is after stop_time".color(:red)
         end
         puts
     end
