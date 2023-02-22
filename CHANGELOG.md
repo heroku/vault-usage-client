@@ -13,3 +13,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Prefer colorize gem to rainbow
 - Upgrade deps to fix vulns in rack, nokogiri, and yard
+
+## [2.0.0] - 2023-02-22
+- Upgrade Ruby version to 3.2 for compatability with PSMGR upgrades
+- Upgrade various gems for the same reason
