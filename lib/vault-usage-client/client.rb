@@ -333,6 +333,7 @@ module Vault::Usage
     # @return [TrueClass,FalseClass] True if the value resembles a date,
     #   otherwise false.
     def date?(value)
+      return false unless value.is_a?(String)
       value =~ /\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}Z/
     end
 
